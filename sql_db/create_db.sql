@@ -1,43 +1,39 @@
-CREATE database Airport_DB
+CREATE DATABASE AirportManagement;
+GO
+USE AirportManagement;
+GO
 
-USE Airport_DB
+-- טבלת משתמשים
+CREATE TABLE Users (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    username NVARCHAR(50) UNIQUE NOT NULL,
+    email NVARCHAR(100) UNIQUE NOT NULL,
+    password_hash NVARCHAR(255) NOT NULL,
+    role NVARCHAR(10) CHECK (role IN ('user', 'admin')) NOT NULL
+);
+GO
 
--- יצירת טבלת Flights
+-- טבלת טיסות
 CREATE TABLE Flights (
-    flight_id INT PRIMARY KEY IDENTITY(1,1),
-    flight_number VARCHAR(50) NOT NULL,
-    departure_airport VARCHAR(100),
-    arrival_airport VARCHAR(100),
-    departure_time DATETIME,
-    arrival_time DATETIME,
-    status VARCHAR(50),
-    gate_id INT,
-    FOREIGN KEY (gate_id) REFERENCES Gates(gate_id)
+    id INT PRIMARY KEY IDENTITY(1,1),
+    flight_number NVARCHAR(10) NOT NULL,
+    airline NVARCHAR(50) NOT NULL,
+    origin NVARCHAR(50) NOT NULL,   -- מקור הטיסה
+    destination NVARCHAR(50) NOT NULL, -- יעד הטיסה
+    terminal INT NOT NULL,
+    gate NVARCHAR(10),
+    scheduled_time DATETIME NOT NULL,
+    updated_time DATETIME,
+    status NVARCHAR(10) CHECK (status IN ('scheduled', 'departed', 'arrived', 'delayed', 'cancelled')) NOT NULL
 );
+GO
 
--- יצירת טבלת Passengers
-CREATE TABLE Passengers (
-    passenger_id INT PRIMARY KEY IDENTITY(1,1),
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    passport_number VARCHAR(50),
-    flight_id INT,
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
+-- טבלת מעקב אחרי טיסות
+CREATE TABLE Followed_Flights (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    user_id INT NOT NULL,
+    flight_id INT NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE,
+    FOREIGN KEY (flight_id) REFERENCES Flights(id) ON DELETE CASCADE
 );
-
--- יצירת טבלת Gates
-CREATE TABLE Gates (
-    gate_id INT PRIMARY KEY IDENTITY(1,1),
-    gate_name VARCHAR(50) NOT NULL,
-    location VARCHAR(100),
-    is_open BIT -- שדה המצב אם השער פתוח או סגור
-);
-
--- יצירת טבלת Flight_Delays
-CREATE TABLE Flight_Delays (
-    delay_id INT PRIMARY KEY IDENTITY(1,1),
-    flight_id INT,
-    delay_time INT, -- זמן העיכוב בדקות
-    reason VARCHAR(255),
-    FOREIGN KEY (flight_id) REFERENCES Flights(flight_id)
-);
+GO
