@@ -1,6 +1,8 @@
 from flask import jsonify
 from models.flight import Flight
 from config.db import db
+from datetime import datetime
+
 
 # פונקציה שמחזירה את כל הטיסות לנחיתה
 def get_landing_flights():
@@ -12,6 +14,23 @@ def get_landing_flights():
 def get_takeoff_flights():
     flights = db.session.query(Flight).filter_by(origin="Ben Gurion").all()
     return jsonify([flight.to_dict() for flight in flights])
+
+# פונקציה לעדכון שעת ההמראה/הנחיתה
+def updated_time(flight_id, new_time):
+    flight = db.session.query(Flight).filter_by(id=flight_id).first()
+    
+    if not flight:
+        return jsonify({"error": "Flight not found"}), 404
+
+    try:
+        # המרת מחרוזת לפורמט datetime אם נשלח כטקסט
+        flight.updated_time = datetime.fromisoformat(new_time)  
+    except ValueError:
+        return jsonify({"error": "Invalid datetime format. Use ISO format (YYYY-MM-DD HH:MM:SS)"}), 400
+
+    db.session.commit()
+
+    return jsonify({"message": "Flight time updated successfully", "flight": flight.to_dict()})
 
 
 # from sqlalchemy.orm import joinedload
@@ -38,17 +57,3 @@ def get_takeoff_flights():
 #         return jsonify(flights_list), 200
 #     except Exception as e:
 #         return jsonify({"error": str(e)}), 500
-
-
-# def get_flight_by_id(flight_id):
-#     try:
-#         # שימוש ב-query.get או query.filter_by כדי למצוא טיסה לפי מזהה
-#         flight = Flight.query.get(flight_id)
-
-#         if flight:
-#             return jsonify(flight.to_dict()), 200  # מחזירים את הטיסה כדיקט
-#         else:
-#             return jsonify({"error": "Flight not found"}), 404  # אם לא נמצאה טיסה עם המזהה הזה
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500  # במקרה של שגיאה
-
