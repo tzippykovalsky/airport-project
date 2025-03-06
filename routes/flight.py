@@ -14,6 +14,7 @@ def all_takeoff_flights():
 # עדכון שעת המראה/נחיתה ע"פ מזהה של טיסה
 @flight_bp.route('/time/<int:flight_id>', methods=['PUT'])
 def updated_time_flight(flight_id):
+    # לראות להעביר את החלק הבא לתוך הסרויס
     data = request.get_json()  # קבלת הנתונים מהבקשה (JSON)
     
     if not data or "new_time" not in data:
