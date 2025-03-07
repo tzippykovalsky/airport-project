@@ -1,4 +1,4 @@
-from flask import jsonify,request
+from flask import jsonify,request,render_template
 from models.flight import Flight
 from config.db import db
 from datetime import datetime
@@ -13,7 +13,8 @@ def get_landing_flights():
 # פונקציה שמחזירה את כל הטיסות להמראה
 def get_takeoff_flights():
     flights = db.session.query(Flight).filter_by(origin="Ben Gurion").all()
-    return jsonify([flight.to_dict() for flight in flights])
+    # return jsonify([flight.to_dict() for flight in flights])
+    return render_template("landing_flights.html", flights=flights)
 
 # פונקציה לעדכון שעת ההמראה/הנחיתה
 def updated_time(flight_id):
@@ -38,6 +39,12 @@ def updated_time(flight_id):
     db.session.commit()
 
     return jsonify({"message": "Flight time updated successfully", "flight": flight.to_dict()})
+  
+
+
+
+
+
 
 
 # from sqlalchemy.orm import joinedload
