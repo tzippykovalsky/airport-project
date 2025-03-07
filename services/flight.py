@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify,request
 from models.flight import Flight
 from config.db import db
 from datetime import datetime
@@ -16,7 +16,14 @@ def get_takeoff_flights():
     return jsonify([flight.to_dict() for flight in flights])
 
 # פונקציה לעדכון שעת ההמראה/הנחיתה
-def updated_time(flight_id, new_time):
+def updated_time(flight_id):
+    data = request.get_json()  # קבלת הנתונים מהבקשה (JSON)
+    
+    if not data or "new_time" not in data:
+        return {"error": "Missing required field: new_time"}, 400
+    
+    new_time = data["new_time"]
+    
     flight = db.session.query(Flight).filter_by(id=flight_id).first()
     
     if not flight:
